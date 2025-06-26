@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Personen-Quiz (Peter / Joachim)</title>
+  <style>
+    body {font-family: system-ui, sans-serif; margin: 2rem; max-width: 640px}
+    h1 {text-align: center}
+    #picker button, #quiz button {
+      padding: 0.6rem 1rem; font-size: 1rem; cursor: pointer; margin: 0.3rem 0.5rem
+    }
+    #card {border: 1px solid #aaa; border-radius: 8px; padding: 1.5rem}
+    #q {font-weight: 600; margin-bottom: 1rem}
+    input {width: 100%; padding: 0.4rem; font-size: 1rem}
+    #result {margin-top: 0.8rem; font-weight: 600}
+    .right {color: green}
+    .wrong {color: #c00}
+  </style>
+</head>
+<body>
+
+<h1>Personen-Quiz</h1>
+
+<div id="picker">
+  <p>Wähle eine Person:</p>
+  <button data-person="Peter">Peter</button>
+  <button data-person="Joachim">Joachim</button>
+</div>
+
+<div id="quiz" style="display:none;">
+  <div id="card">
+    <div id="q"></div>
+    <input id="answerBox" type="text" autocomplete="off" placeholder="Deine Antwort">
+    <button id="checkBtn">Prüfen</button>
+    <div id="result"></div>
+  </div>
+  <div id="scoreBoard" style="margin-top:1.5rem;"></div>
+</div>
+
+<script>
+const allQA = {
+  Peter: [
+    {q:"Name der Person?", a:"Peter"},
+    {q:"Geschlecht der Person?", a:"männlich"},
+    {q:"Ist Peter besonders groß?", a:"nein"},
+    {q:"Gesicht von Peter?", a:"rote säuervisage"},
+    {q:"Haarzustand von Peter?", a:"fettige haare"},
+    {q:"Frisur von Peter?", a:"halbglatze"},
+    {q:"Kleidungsstück von Peter?", a:"braune lederjacke"},
+    {q:"Schmuckstück von Peter?", a:"goldkettchen"},
+    {q:"Gesamteindruck von Peter?", a:"schmierig und ungesund"},
+    {q:"Ist Peter sympathisch?", a:"nein"}
+  ],
+  Joachim: [
+    {q:"Name der Person?", a:"Joachim"},
+    {q:"Geschlecht von Joachim?", a:"männlich"},
+    {q:"Beruf von Joachim?", a:"immobilienmakler"},
+    {q:"Rolle von Joachim?", a:"der boss"},
+    {q:"Figur von Joachim?", a:"schlanker herr"},
+    {q:"Haare von Joachim?", a:"graue schläfen"},
+    {q:"Bart von Joachim?", a:"gepflegter schnauzbart"},
+    {q:"Kleidung von Joachim?", a:"dunkelblauer anzug"},
+    {q:"Krawatte von Joachim?", a:"weinrote krawatte"},
+    {q:"Gesamteindruck von Joachim?", a:"vornehm wirkender herr"}
+  ]
+};
+
+let qa = [], current = 0, score = 0;
+const pickerDiv = document.getElementById("picker");
+const quizDiv = document.getElementById("quiz");
+const qEl = document.getElementById("q");
+const answerBox = document.getElementById("answerBox");
+const resultEl = document.getElementById("result");
+const scoreEl = document.getElementById("scoreBoard");
+
+pickerDiv.addEventListener("click", e => {
+  if (e.target.dataset.person) startQuiz(e.target.dataset.person);
+});
+
+function startQuiz(person) {
+  qa = [...allQA[person]];
+  shuffle(qa);
+  current = 0; score = 0;
+  pickerDiv.style.display = "none";
+  quizDiv.style.display = "block";
+  loadQuestion();
+}
+
+document.getElementById("checkBtn").addEventListener("click", checkAnswer);
+answerBox.addEventListener("keyup", e => e.key === "Enter" && checkAnswer());
+
+function loadQuestion() {
+  if (current >= qa.length) return finishQuiz();
+  qEl.textContent = qa[current].q;
+  answerBox.value = "";
+  answerBox.focus();
+  resultEl.textContent = "";
+  resultEl.className = "";
+}
+
+function checkAnswer() {
+  const user = answerBox.value.trim().toLowerCase();
+  const correct = qa[current].a.toLowerCase();
+  if (!user) return;
+  if (user === correct) {
+    resultEl.textContent = "Richtig ✓";
+    resultEl.className = "right";
+    score++;
+  } else {
+    resultEl.textContent = `Falsch ✗  (richtig: ${qa[current].a})`;
+    resultEl.className = "wrong";
+  }
+  current++;
+  setTimeout(loadQuestion, 1500);
+}
+
+function finishQuiz() {
+  document.getElementById("card").style.display = "none";
+  scoreEl.innerHTML =
+    `<h2>Fertig!</h2><p>Du hast ${score} von ${qa.length} Fragen richtig beantwortet.</p>
+     <button onclick="location.reload()">Nochmal spielen</button>`;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+</script>
+</body>
+</html>
